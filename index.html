@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>8x8 Grid Drawer</title>
+    <style>
+        .row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: black;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .cell.active {
+            background-color: red;
+        }
+        #grid {
+            margin-bottom: 20px;
+        }
+        #output {
+            font-family: monospace;
+            white-space: pre;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="grid"></div>
+    <button onclick="copyOutput()">Copy Output</button>
+    <pre id="output"></pre>
+
+    <script>
+        function createGrid() {
+            const grid = document.getElementById('grid');
+            for (let i = 0; i < 8; i++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                for (let j = 0; j < 8; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.addEventListener('click', function() {
+                        this.classList.toggle('active');
+                        updateOutput();
+                    });
+                    row.appendChild(cell);
+                }
+                grid.appendChild(row);
+            }
+            updateOutput();
+        }
+
+        function updateOutput() {
+            const rows = document.getElementsByClassName('row');
+            let output = '[\n';
+            for (let row of rows) {
+                let binary = '';
+                let comment = '';
+                const cells = row.getElementsByClassName('cell');
+                for (let cell of cells) {
+                    const isActive = cell.classList.contains('active');
+                    binary += isActive ? '1' : '0';
+                    comment += isActive ? 'X' : ' ';
+                }
+                const binaryLiteral = `0b${binary}`;
+                output += `    ${binaryLiteral},  # ${comment}\n`;
+            }
+            output += ']';
+            document.getElementById('output').textContent = output;
+        }
+
+        function copyOutput() {
+            const output = document.getElementById('output').textContent;
+            navigator.clipboard.writeText(output).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy. Please try again.');
+                console.error(err);
+            });
+        }
+
+        // Initialize the grid when the page loads
+        createGrid();
+    </script>
+</body>
+</html>
