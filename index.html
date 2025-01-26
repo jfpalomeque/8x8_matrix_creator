@@ -3,7 +3,6 @@
 <head>
     <title>8x8 Grid Drawer</title>
     <style>
-        /* Add header styles */
         .header {
             text-align: center;
             margin-bottom: 20px;
@@ -21,8 +20,6 @@
             max-width: 600px;
             margin: 0 auto;
         }
-
-        /* Existing styles */
         .row {
             display: flex;
             gap: 5px;
@@ -54,10 +51,18 @@
             margin-bottom: 10px;
             cursor: pointer;
         }
+        .import-section {
+            margin: 20px 0;
+        }
+        #importInput {
+            width: 100%;
+            height: 150px;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
-    <!-- Added header section -->
     <div class="header">
         <h1 class="title">8x8 Grid Drawer Web App</h1>
         <p class="description">
@@ -66,13 +71,17 @@
         </p>
     </div>
 
-    <!-- Existing content -->
     <div id="grid"></div>
     <button onclick="copyOutput()">Copy Output</button>
+    
+    <div class="import-section">
+        <button onclick="importPattern()">Import Pattern</button>
+        <textarea id="importInput" placeholder="Paste your pattern here..."></textarea>
+    </div>
+    
     <pre id="output"></pre>
 
     <script>
-        // Existing JavaScript remains unchanged
         function createGrid() {
             const grid = document.getElementById('grid');
             for (let i = 0; i < 8; i++) {
@@ -121,7 +130,64 @@
             });
         }
 
+        // New import functionality
+        function importPattern() {
+            const input = document.getElementById('importInput').value;
+            const rows = input
+                .split('\n')
+                .filter(line => line.trim().startsWith('0b'))
+                .map(line => {
+                    const match = line.match(/0b([01]{8})/);
+                    return match ? match[1] : null;
+                });
+
+            if (rows.length !== 8 || rows.some(row => !row)) {
+                alert('Invalid format! Please paste the exact output format.');
+                return;
+            }
+
+            const gridRows = document.getElementsByClassName('row');
+            for (let i = 0; i < 8; i++) {
+                const cells = gridRows[i].getElementsByClassName('cell');
+                const bits = rows[i].split('');
+                for (let j = 0; j < 8; j++) {
+                    cells[j].classList.toggle('active', bits[j] === '1');
+                }
+            }
+            updateOutput();
+        }
+
         createGrid();
     </script>
+ <div class="instructions">
+        <h2>How to Use</h2>
+        <p><strong>Creating Patterns:</strong></p>
+        <ol>
+            <li>Click circles to toggle between black (off) and red (on)</li>
+            <li>Use "Copy Output" to copy your pattern to clipboard</li>
+        </ol>
+        
+        <p><strong>Importing Patterns:</strong></p>
+        <ol>
+            <li>Copy an existing pattern (in the format shown below)</li>
+            <li>Paste it into the import textarea</li>
+            <li>Click "Import Pattern" to load it into the grid</li>
+        </ol>
+
+        <p><strong>Example Format:</strong></p>
+        <div class="example">
+[
+    0b00011000,  #    XX
+    0b00100100,  #   X  X
+    0b01000010,  #  X    X
+    0b01000010,  #  X    X
+    0b01000010,  #  X    X
+    0b00100100,  #   X  X
+    0b00011000,  #    XX
+    0b00000000   #       
+]
+        </div>
+        <p>Note: The import function will ignore comments and whitespace, but requires the binary format (0bXXXXXXXX) to be present.</p>
+    </div>
 </body>
 </html>
